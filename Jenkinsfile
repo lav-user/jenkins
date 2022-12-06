@@ -9,6 +9,7 @@ pipeline {
                 # Build with Jtest SA/UT/monitor
                 '''
             }
+        }
         
         stage('deploy') {
             steps {
@@ -22,7 +23,7 @@ pipeline {
                 parasoft/parabank
                 '''
             }
-        
+        }
         stage('run tests') {
             steps {
                 sh '''
@@ -32,7 +33,7 @@ pipeline {
                 curl -iv --raw http://localhost:8090/parabank
                 '''
             }
-        
+        }
         stage('destroy') {
             steps {
                 sh '''
