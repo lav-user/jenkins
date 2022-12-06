@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environments {
+        parabank_host=8080
+    }
     stages {
         stage('build') {
             steps {
