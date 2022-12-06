@@ -12,12 +12,20 @@ pipeline {
         stage('build') {
             steps {
                 cleanWs()
+                sh 'echo "clone project"'
                 git branch: 'master', url: 'https://github.com/parasoft/parabank.git'
 
                 sh '''
                 echo ${pwd}
-                # Clone parabank/main
                 # Build with Jtest SA/UT/monitor
+                # need jtestcli.properties
+                # need maven in conatiner
+                # configure maven
+
+                docker run --rm --it \
+                parasoft/jtest \
+                ./mvnw clean install
+
                 '''
             }
         }
