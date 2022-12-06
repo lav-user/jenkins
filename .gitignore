@@ -1,4 +1,4 @@
 
 # .env
 .env
-Jenkinsfile.config.json
+*.config.json
