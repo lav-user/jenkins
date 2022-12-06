@@ -23,6 +23,7 @@ pipeline {
                 -p ${parabank_port}:8080 \
                 -p 61616:61616 \
                 -p 9001:9001 \
+                --name parabankv1 \
                 parasoft/parabank
                 '''
             }
@@ -42,7 +43,8 @@ pipeline {
                 sh '''
                 echo ${pwd}
                 docker ps
-                docker stop parasoft/parabank
+                docker stop parabankv1
+                docker rm parabankv1
                 '''
             }
         }
