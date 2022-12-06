@@ -3,7 +3,10 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                sh 'docker status'
+                sh '''
+                echo ${pwd}
+                docker ps
+                '''
             }
         }
     }
