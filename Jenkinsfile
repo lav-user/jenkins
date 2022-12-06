@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    environments {
+    environment {
         parabank_host=8080
     }
     stages {
