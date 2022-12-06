@@ -12,7 +12,7 @@ pipeline {
         stage('build') {
             steps {
                 cleanWs()
-                git branch: 'main', url: 'https://github.com/parasoft/parabank.git'
+                git branch: 'master', url: 'https://github.com/parasoft/parabank.git'
 
                 sh '''
                 echo ${pwd}
