@@ -1,11 +1,19 @@
 pipeline {
     agent any
+    options {
+        // This is required if you want to clean before build
+        skipDefaultCheckout(true)
+    }
     environment {
+        parabank_git_url='https://github.com/parasoft/parabank.git'
         parabank_port=8090
     }
     stages {
         stage('build') {
             steps {
+                cleanWs()
+                git branch: 'main', url: ${parabank_git_url}
+
                 sh '''
                 echo ${pwd}
                 # Clone parabank/main
