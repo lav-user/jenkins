@@ -22,7 +22,7 @@ pipeline {
                 # need maven in conatiner
                 # configure maven
 
-                docker run --rm --it \
+                docker run --rm -it \
                 parasoft/jtest \
                 ./mvnw clean install
 
