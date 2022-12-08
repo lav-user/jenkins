@@ -5,7 +5,8 @@ pipeline {
         skipDefaultCheckout(true)
     }
     environment {
-        parabank_git_url='https://github.com/parasoft/parabank.git'
+        // app_git_url='https://github.com/parasoft/parabank.git'
+        // app_branch='master'
         parabank_port=8090
     }
     stages {
@@ -16,16 +17,26 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/parasoft/parabank.git'
 
                 sh '''
-                echo ${pwd}
+                # Check Vars
+                echo $PWD
+                
+                docker ps
+                ls -la
+
                 # Build with Jtest SA/UT/monitor
                 # need jtestcli.properties
                 # need maven in conatiner
                 # configure maven
-
-                docker run --rm -it \
-                parasoft/jtest \
-                ./mvnw clean install
-
+                
+                docker run --rm -i \
+                -u 0:0 \
+                -v "$PWD:$PWD" \
+                -w "$PWD" \
+                jtest:mvn /bin/bash -c " \
+                cat $MAVEN_CONFIG/settings.xml; \
+                mvn jtest:jtest -X \
+                -s /home/parasoft/.m2/settings.xml \
+                -Djtest.settings='/home/parasoft/jtestcli.properties'"
                 '''
             }
         }
@@ -35,12 +46,19 @@ pipeline {
                 sh '''
                 echo ${pwd}
                 docker ps
+
+                # Deploy App
+                ## Specify Port via ${parabank_port}
                 docker run -d \
                 -p ${parabank_port}:8080 \
                 -p 61616:61616 \
                 -p 9001:9001 \
                 --name parabankv1 \
                 parasoft/parabank
+
+                # Configure App
+
+                # Deploy Virt Env
                 '''
             }
         }
@@ -48,10 +66,20 @@ pipeline {
             steps {
                 sh '''
                 echo ${pwd}
+                
+                # Wait for start up
                 sleep 30
                 docker ps
+
+                # Pulse?
                 curl -iv --raw http://localhost:8090/parabank
+                
+                # License SOATest
+                
+                # Run SOAtest Tests
                 '''
+
+
             }
         }
         stage('destroy') {
@@ -63,6 +91,13 @@ pipeline {
                 docker rm parabankv1
                 '''
             }
+        }      
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: '**/target/jtest/*', 
+            fingerprint: true, 
+            onlyIfSuccessful: true
         }
     }
 }
