@@ -2,3 +2,6 @@
 # .env
 .env
 *.config.json
+**Jenkinsfile copy
+**-backup
+**jtestcli.properties
