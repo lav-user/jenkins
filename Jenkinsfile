@@ -20,6 +20,7 @@ pipeline {
                 # Check Vars
                 echo $PWD
                 
+                # is Docker runnnig?
                 docker ps
                 ls -la
 
@@ -36,12 +37,17 @@ pipeline {
                 cat $MAVEN_CONFIG/settings.xml; \
                 mvn jtest:jtest -X \
                 -s /home/parasoft/.m2/settings.xml \
-                -Djtest.settings='/home/parasoft/jtestcli.properties'"
+                -Djtest.settings='/home/parasoft/jtestcli.properties'; \
+                mvn package jtest:monitor \
+                -s /home/parasoft/.m2/settings.xml \
+                -Djtest.settings='/home/parasoft/jtestcli.properties'; \
+                "
                 '''
             }
         }
         
         stage('deploy') {
+            when { equals expected: true, actual: false}
             steps {
                 sh '''
                 echo ${pwd}
@@ -63,6 +69,7 @@ pipeline {
             }
         }
         stage('run tests') {
+            when { equals expected: true, actual: false}
             steps {
                 sh '''
                 echo ${pwd}
@@ -83,6 +90,7 @@ pipeline {
             }
         }
         stage('destroy') {
+            when { equals expected: true, actual: false}
             steps {
                 sh '''
                 echo ${pwd}
