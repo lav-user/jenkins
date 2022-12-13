@@ -10,7 +10,7 @@ pipeline {
         parabank_port=8090
     }
     stages {
-        stage('build') {
+        stage('Build App') {
             steps {
                 cleanWs()
                 sh 'echo "clone project"'
@@ -26,8 +26,7 @@ pipeline {
 
                 # Build with Jtest SA/UT/monitor
                 # need jtestcli.properties
-                # need maven in conatiner
-                # configure maven
+                # need to point to ${user.home}
                 
                 docker run --rm -i \
                 -u 0:0 \
@@ -46,12 +45,16 @@ pipeline {
             }
         }
         
-        stage('deploy') {
+        stage('Deploy App via Docker') {
             when { equals expected: true, actual: false}
             steps {
                 sh '''
                 echo ${pwd}
                 docker ps
+
+                # Set Up Env
+                # Unpack monitor
+                # JDBCDriver.jar
 
                 # Deploy App
                 ## Specify Port via ${parabank_port}
@@ -68,7 +71,7 @@ pipeline {
                 '''
             }
         }
-        stage('run tests') {
+        stage('Run Functional Tests') {
             when { equals expected: true, actual: false}
             steps {
                 sh '''
@@ -89,7 +92,7 @@ pipeline {
 
             }
         }
-        stage('destroy') {
+        stage('Destroy Contatiners and Clean Up') {
             when { equals expected: true, actual: false}
             steps {
                 sh '''
@@ -103,7 +106,7 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts artifacts: '**/target/jtest/*', 
+            archiveArtifacts artifacts: '**/target/jtest/**', 
             fingerprint: true, 
             onlyIfSuccessful: true
         }
