@@ -17,3 +17,18 @@ jenkins
 
 ## Jtest
 
+### Configure Jtest
+
+To Jtest to run configure `jtest/jtestcli.properties` file.
+
+The Dockerfile will create a Jtest docker container with Maven installed. The settings.xml file and `jtestcli.properties` file is copied into the `/home/parasoft/` directory.
+
+to run jtestcli use
+```
+mvn jtest:jtest \
+-s /home/parasoft/.m2/settings.xml \
+-Djtest.settings='/home/parasoft/jtestcli.properties'; \
+```
+
+TODO:
+fix docker file so that the -s and -Djtest.settings flags arent needed.
