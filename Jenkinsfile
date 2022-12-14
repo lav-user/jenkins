@@ -16,9 +16,17 @@ pipeline {
         stage('Configre Workspace') {
             steps {
                 cleanWs()
-                sh 'ls -R'
-                git branch: 'main', url: "https://github.com/gtrofimov/jenkins.git"
-                git branch: 'master', url: "https://github.com/parasoft/parabank.git"
+                sh '''
+                    echo ${ls_user}
+                    ls -R
+                    '''
+                dir('jtest') {
+                    git url: 'https://github.com/gtrofimov/jenkins.git'
+                }
+                
+                dir('pbank') {
+                    git url: 'https://github.com/parasoft/parabank.git'
+                }
                 sh 'ls -la'
             }
         }
