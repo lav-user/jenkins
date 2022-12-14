@@ -8,14 +8,18 @@ pipeline {
         // app_git_url='https://github.com/parasoft/parabank.git'
         // app_branch='master'
         parabank_port=8090
-        ls_url="https://34.212.121.186:8443"
-        ls_user='admin'
-        ls_pass='parasoft.vm'
+        ls_url="${PARASOFT_LS_URL}"
+        ls_user="${PARASOFT_LS_USER}"
+        ls_pass="${PARASOFT_LS_PASS}"
     }
     stages {
-        stage('Validate') {
+        stage('Configre Workspace') {
             steps {
+                cleanWs()
                 sh 'ls -R'
+                git branch: 'main', url: "https://github.com/gtrofimov/jenkins.git"
+                git branch: 'master', url: "https://github.com/parasoft/parabank.git"
+                sh 'ls -la'
             }
         }
         stage('Build App') {
