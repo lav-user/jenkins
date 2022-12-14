@@ -76,14 +76,14 @@ pipeline {
                 "
 
                 # Unzip monitor.zip
-                unzip **/target/*/*/monitor.zip -d monitor
+                unzip **/target/*/*/monitor.zip -d .
                 ls -la monitor
                 '''
             }
         }
         
         stage('Deploy App via Docker') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${pwd}
