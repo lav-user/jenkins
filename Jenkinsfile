@@ -8,15 +8,26 @@ pipeline {
         // app_git_url='https://github.com/parasoft/parabank.git'
         // app_branch='master'
         parabank_port=8090
+        ls_url="https://34.212.121.186:8443"
+        ls_user='admin'
+        ls_pass='parasoft.vm'
     }
     stages {
-        stage('Build App') {
+        stage('Validate')
             steps {
-                cleanWs()
-                sh 'echo "clone project"'
-                git branch: 'master', url: 'https://github.com/parasoft/parabank.git'
-
+                sh 'ls -R'
+            }
+        stage('Build App') {
+            when { equals expected: true, actual: false}
+            steps {
                 sh '''
+                
+                echo "Starting Pipeline Execution."
+                echo "Create ./jtest directory for volume mount."
+                mkdir jtest
+                echo ${PWD}
+                echo "Copy SOAtest project contents to volume directory."
+                jtest/.
                 # Check Vars
                 echo $PWD
                 
@@ -25,7 +36,21 @@ pipeline {
                 ls -la
 
                 # Build with Jtest SA/UT/monitor
-                # need jtestcli.properties
+                # Set Up and write .properties file
+
+                echo  -e "\n~~~\nSetting up and creating jtest.properties file.\n"
+                echo $"
+                parasoft.eula.accepted=true
+                jtest.license.use_network=true
+                jtest.license.network.edition=server_edition
+                dtp.url=${ls_url}
+                dtp.user=${ls_user}
+                dtp.password=${ls_pass}" >> jtest/jtestcli.properties
+                echo -e "\nDebug -- Verify workspace contents.\n"
+                ls -la
+                echo -e "\nDebug -- Verify jtestcli.properties file contents."
+                cat jtest/soatestcli.properties
+
                 # need to point to ${user.home}
                 
                 docker run --rm -i \

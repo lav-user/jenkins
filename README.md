@@ -23,7 +23,11 @@ jenkins
    2. Deploy
    3. Test
    4. Release
-
+4. Configure licenses for each tool
+   1. jtest
+   2. virt
+   3. soatest
+   4. well whats parabank missing really
 ### Potential Errors and Workarounds (FAQ)
 1. add sudouser
 2. tty (unresloved)
