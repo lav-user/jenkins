@@ -38,7 +38,8 @@ pipeline {
 
                 # Check Vars
                 echo $PWD
-                
+                mkdir monitor
+                set MONITOR_HOME="monitor"
                 # is Docker runnnig?
                 docker ps
                 ls -la
@@ -66,15 +67,17 @@ pipeline {
                 -v "$PWD:$PWD" \
                 -w "$PWD" \
                 $(docker build -q ./jenkins/jtest) /bin/bash -c " \
-                cat $MAVEN_CONFIG/settings.xml; \
                 cd parabank; \
-                mvn jtest:jtest -X \
-                -s /home/parasoft/.m2/settings.xml \
-                -Djtest.settings='/home/parasoft/jtestcli.properties'; \
-                mvn package jtest:monitor \
+                mvn \
+                -DskipTests=true \
+                package jtest:monitor \
                 -s /home/parasoft/.m2/settings.xml \
                 -Djtest.settings='/home/parasoft/jtestcli.properties'; \
                 "
+
+                # Unzip monitor.zip
+                unzip **/target/*/*/monitor.zip -d monitor
+                ls -la monitor
                 '''
             }
         }
@@ -94,8 +97,11 @@ pipeline {
                 ## Specify Port via ${parabank_port}
                 docker run -d \
                 -p ${parabank_port}:8080 \
+                -p 8050:8050 \
                 -p 61616:61616 \
                 -p 9001:9001 \
+                -e CATALINA_OPTS=-javaagent:"/home/docker/jtest/monitor/agent.jar"=settings="/home/docker/jtest/monitor/agent.properties",runtimeData="/home/docker/jtest/monitor/runtime_coverage" \
+                -v "$PWD/monitor:/home/docker/jtest/monitor" \
                 --name parabankv1 \
                 parasoft/parabank
 
@@ -106,7 +112,7 @@ pipeline {
             }
         }
         stage('Run Functional Tests') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${pwd}
@@ -117,7 +123,7 @@ pipeline {
 
                 # Pulse?
                 curl -iv --raw http://localhost:8090/parabank
-                
+                curl -iv --raw http://localhost:8050/status
                 # License SOATest
                 
                 # Run SOAtest Tests
@@ -127,7 +133,7 @@ pipeline {
             }
         }
         stage('Destroy Contatiners and Clean Up') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${pwd}
