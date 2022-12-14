@@ -18,29 +18,24 @@ pipeline {
                 cleanWs()
                 sh '''
                     echo ${ls_user}
-                    ls -R
-                    '''
-                dir('jtest') {
-                    git url: 'https://github.com/gtrofimov/jenkins.git'
-                }
+                    ls -R    
+                    
+                    git clone 'https://github.com/gtrofimov/jenkins.git' 
                 
-                dir('pbank') {
-                    git url: 'https://github.com/parasoft/parabank.git'
-                }
-                sh 'ls -la'
+                    git clone 'https://github.com/parasoft/parabank.git'
+                    ls -la
+                
+                   '''
             }
         }
         stage('Build App') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 
                 echo "Starting Pipeline Execution."
-                echo "Create ./jtest directory for volume mount."
-                mkdir jtest
                 echo ${PWD}
-                echo "Copy SOAtest project contents to volume directory."
-                jtest/.
+
                 # Check Vars
                 echo $PWD
                 
@@ -58,11 +53,11 @@ pipeline {
                 jtest.license.network.edition=server_edition
                 dtp.url=${ls_url}
                 dtp.user=${ls_user}
-                dtp.password=${ls_pass}" >> jtest/jtestcli.properties
+                dtp.password=${ls_pass}" >> jenkins/jtest/jtestcli.properties
                 echo -e "\nDebug -- Verify workspace contents.\n"
                 ls -la
                 echo -e "\nDebug -- Verify jtestcli.properties file contents."
-                cat jtest/soatestcli.properties
+                cat jenkins/jtest/jtestcli.properties
 
                 # need to point to ${user.home}
                 
@@ -70,8 +65,9 @@ pipeline {
                 -u 0:0 \
                 -v "$PWD:$PWD" \
                 -w "$PWD" \
-                jtest:mvn /bin/bash -c " \
+                $(docker build -q ./jenkins/jtest) /bin/bash -c " \
                 cat $MAVEN_CONFIG/settings.xml; \
+                cd parabank; \
                 mvn jtest:jtest -X \
                 -s /home/parasoft/.m2/settings.xml \
                 -Djtest.settings='/home/parasoft/jtestcli.properties'; \
