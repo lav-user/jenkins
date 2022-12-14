@@ -13,10 +13,11 @@ pipeline {
         ls_pass='parasoft.vm'
     }
     stages {
-        stage('Validate')
+        stage('Validate') {
             steps {
                 sh 'ls -R'
             }
+        }
         stage('Build App') {
             when { equals expected: true, actual: false}
             steps {
