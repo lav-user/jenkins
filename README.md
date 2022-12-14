@@ -14,10 +14,27 @@ jenkins
  ┣ Jenkinsfile
  ┗ README.md
 ```
+## To Run
 
-## Jtest
+1. Install Jenkins
+2. Install Docker
+3. Create Jenkins Pipeline
+   1. Build
+   2. Deploy
+   3. Test
+   4. Release
 
-### Configure Jtest
+### Potential Errors and Workarounds (FAQ)
+1. add sudouser
+2. tty (unresloved)
+   
+TODO: Add ADO, Terraform
+
+## Stages
+
+### Test
+
+#### Jtest
 
 To Jtest to run configure `jtest/jtestcli.properties` file.
 
@@ -32,3 +49,11 @@ mvn jtest:jtest \
 
 TODO:
 fix docker file so that the -s and -Djtest.settings flags arent needed.
+
+### Deploy
+#### Parabank
+#### Virtulize
+### Test
+#### SOAtest
+#### Selenic
+### Release
