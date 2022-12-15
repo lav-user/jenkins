@@ -83,7 +83,7 @@ pipeline {
         }
         
         stage('Deploy App via Docker') {
-            when { equals expected: true, actual: true}
+            when { equals expected: true, actual: false}
             steps {
                 sh '''
                 echo ${PWD}
@@ -116,16 +116,45 @@ pipeline {
                 sh '''
                 echo ${pwd}
                 
-                # Wait for start up
-                sleep 30
+                # Wait for Parabank start up
+                # sleep 30
                 docker ps
 
                 # Pulse?
-                curl -iv --raw http://localhost:8090/parabank
-                curl -iv --raw http://localhost:8050/status
+                # curl -iv --raw http://localhost:8090/parabank
+                # curl -iv --raw http://localhost:8050/status
                 # License SOATest
+                # Set Up and write .properties file
                 
+                echo  -e "\n~~~\nSetting up and creating soatestcli.properties file.\n"
+                echo $"
+                license.network.auth.enabled=true
+                license.network.use.specified.server=true
+                license.network.url=${ls_url}
+                license.network.user=${ls_user}
+                license.network.password=${ls_pass}
+                soatest.license.network.edition=automation_edition
+                soatest.license.use_network=true" >> jenkins/soatest/soatestcli.properties
+                echo -e "\nDebug -- Verify workspace contents.\n"
+                ls -la jenkins/soatest
+                echo -e "\nDebug -- Verify soatestcli.properties file contents."
+                cat jenkins/soatest/soatestcli.properties
+
                 # Run SOAtest Tests
+                
+                docker run --rm -i \
+                -u 0:0 \
+                -e ACCEPT_EULA=true \
+                -v "$PWD:$PWD" \
+                parasoft/soavirt /bin/bash -c " \
+                cat jenkins/soatest/soatestcli.properties; \
+                soatestcli -machineId; \
+                cp jenkins/soatest/*.tst /root/parasoft/soavirt_workspace/TestAssets; \
+                soatestcli \
+                -resource /TestAssets \
+                -config 'user://Example Configuration' \
+                -settings jenkins/soatest/soatestcli.properties \
+                -report jenkins/soatest"
                 
                 '''
 
