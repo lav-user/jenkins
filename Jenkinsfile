@@ -29,7 +29,7 @@ pipeline {
             }
         }
         stage('Build App') {
-            when { equals expected: true, actual: true}
+            when { equals expected: true, actual: false}
             steps {
                 sh '''
                 
@@ -39,7 +39,7 @@ pipeline {
                 # Check Vars
                 echo $PWD
                 mkdir monitor
-                set MONITOR_HOME="monitor"
+                # set MONITOR_HOME="monitor"
                 # is Docker runnnig?
                 docker ps
                 ls -la
@@ -86,7 +86,7 @@ pipeline {
             when { equals expected: true, actual: true}
             steps {
                 sh '''
-                echo ${pwd}
+                echo ${PWD}
                 docker ps
 
                 # Set Up Env
@@ -100,7 +100,7 @@ pipeline {
                 -p 8050:8050 \
                 -p 61616:61616 \
                 -p 9001:9001 \
-                -e CATALINA_OPTS=-javaagent:"/home/docker/jtest/monitor/agent.jar"=settings="/home/docker/jtest/monitor/agent.properties",runtimeData="/home/docker/jtest/monitor/runtime_coverage" \
+                --env-file jtest/monitor.env \
                 -v "$PWD/monitor:/home/docker/jtest/monitor" \
                 --name parabankv1 \
                 parasoft/parabank
@@ -127,13 +127,14 @@ pipeline {
                 # License SOATest
                 
                 # Run SOAtest Tests
+                
                 '''
 
 
             }
         }
         stage('Destroy Contatiners and Clean Up') {
-            when { equals expected: true, actual: true}
+            when { equals expected: true, actual: false}
             steps {
                 sh '''
                 echo ${pwd}
