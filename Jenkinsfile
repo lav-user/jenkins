@@ -100,7 +100,6 @@ pipeline {
                 -p 8050:8050 \
                 -p 61616:61616 \
                 -p 9001:9001 \
-                --env-file jtest/monitor.env \
                 -v "$PWD/monitor:/home/docker/jtest/monitor" \
                 --name parabankv1 \
                 parasoft/parabank

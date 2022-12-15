@@ -1,13 +1,11 @@
 # baseline image
 FROM parasoft/jtest
 
-
 # Install MVN
-
-# Permissions to create dirs
+## Permissions to create dirs
 USER root
 
-# MVN args
+## Set MVN args
 ARG MAVEN_VERSION=3.6.3
 ARG USER_HOME_DIR=/home/parasoft
 ARG BASE_URL=https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries
@@ -18,14 +16,14 @@ RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
  && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
 
 
-# Copy Deps
+## Copy Deps
 COPY jtestcli.properties /home/parasoft/jtestcli.properties
 COPY .m2 /home/parasoft/.m2
 
-# Fix permissions
+## Fix permissions
 RUN chown -R parasoft:parasoft .
 
-# Switch user back and configure MVN
+## Switch user back and configure MVN
 USER parasoft:parasoft
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
