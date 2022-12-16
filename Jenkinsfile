@@ -47,6 +47,7 @@ pipeline {
                 # set MONITOR_HOME="monitor"
                 # is Docker runnnig?
                 docker ps
+                # docker network create ${JOB_NAME} 
                 ls -la
 
                 # Build with Jtest SA/UT/monitor
