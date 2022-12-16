@@ -75,6 +75,13 @@ pipeline {
                 $(docker build -q ./jenkins/jtest) /bin/bash -c " \
                 cd parabank; \
                 mvn \
+                -Dmaven.test.failure.ignore=true \
+                test-compile jtest:agent \
+                test jtest:jtest \
+                -s /home/parasoft/.m2/settings.xml \
+                -Djtest.settings='/home/parasoft/jtestcli.properties' \
+                -Djtest.config='jtest.dtp://UTSA'; \
+                mvn \
                 -DskipTests=true \
                 package jtest:monitor \
                 -s /home/parasoft/.m2/settings.xml \
@@ -172,7 +179,7 @@ pipeline {
             }
         }
         stage('Destroy Contatiners and Clean Up') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${pwd}
@@ -181,11 +188,30 @@ pipeline {
                 docker rm parabankv1
                 '''
             }
-        }      
+        }
+
+        stage('Functional Tests 9x'){
+            steps {
+                echo '---> Parsing 9.x functional test reports'
+                step([$class: 'XUnitPublisher', 
+                    tools: [
+                        [$class: 'ParasoftSOAtest9xType', 
+                            pattern: '**/soatest/report/*.xml', 
+                            failIfNotNew: false, 
+                            skipNoTestFiles: true, 
+                            stopProcessingIfError: false
+                        ]
+                    ]
+                ])
+            }
+        }
+
     }
+
     post {
         always {
-            archiveArtifacts artifacts: '**/target/jtest/**,**/jenikins/soatest/report',
+            
+            archiveArtifacts artifacts: '**/target/jtest/**, **/soatest/report/**',
                 fingerprint: true, 
                 onlyIfSuccessful: true
         }
