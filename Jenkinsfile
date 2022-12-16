@@ -7,10 +7,15 @@ pipeline {
     environment {
         // app_git_url='https://github.com/parasoft/parabank.git'
         // app_branch='master'
+        // app_repo=''
+        // build_repo=''
+        // test_repo=''
+
         parabank_port=8090
         ls_url="${PARASOFT_LS_URL}"
         ls_user="${PARASOFT_LS_USER}"
         ls_pass="${PARASOFT_LS_PASS}"
+
     }
     stages {
         stage('Configre Workspace') {
@@ -29,7 +34,7 @@ pipeline {
             }
         }
         stage('Build App') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 
@@ -83,7 +88,7 @@ pipeline {
         }
         
         stage('Deploy App via Docker') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${PWD}
@@ -123,7 +128,7 @@ pipeline {
                 # Pulse?
                 # curl -iv --raw http://localhost:8090/parabank
                 # curl -iv --raw http://localhost:8050/status
-                # License SOATest
+                # License SOAtest
                 # Set Up and write .properties file
                 
                 echo  -e "\n~~~\nSetting up and creating soatestcli.properties file.\n"
@@ -147,14 +152,18 @@ pipeline {
                 -e ACCEPT_EULA=true \
                 -v "$PWD:$PWD" \
                 parasoft/soavirt /bin/bash -c " \
-                cat jenkins/soatest/soatestcli.properties; \
-                soatestcli -machineId; \
-                cp jenkins/soatest/*.tst /root/parasoft/soavirt_workspace/TestAssets; \
+                cat $PWD/jenkins/soatest/soatestcli.properties; \
+                soatestcli \
+                -settings $PWD/jenkins/soatest/soatestcli.properties \
+                -machineId; \
+                ls -la $PWD/jenkins/soatest; \
+                cp "$PWD/jenkins/soatest"/* "/root/parasoft/soavirt_workspace/TestAssets/"; \
                 soatestcli \
                 -resource /TestAssets \
                 -config 'user://Example Configuration' \
-                -settings jenkins/soatest/soatestcli.properties \
-                -report jenkins/soatest"
+                -settings $PWD/jenkins/soatest/soatestcli.properties \
+                -environment 127.17.0.1 \
+                -report $PWD/jenkins/soatest/report"
                 
                 '''
 
@@ -175,9 +184,9 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts artifacts: '**/target/jtest/**', 
-            fingerprint: true, 
-            onlyIfSuccessful: true
+            archiveArtifacts artifacts: '**/target/jtest/**,**/jenikins/soatest/report',
+                fingerprint: true, 
+                onlyIfSuccessful: true
         }
     }
 }
