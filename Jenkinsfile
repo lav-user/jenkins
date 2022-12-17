@@ -94,7 +94,6 @@ pipeline {
                 '''
             }
         }
-        
         stage('Deploy App via Docker') {
             when { equals expected: true, actual: true}
             steps {
@@ -179,7 +178,6 @@ pipeline {
             }
         }
         stage('Destroy Contatiners and Clean Up') {
-            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${pwd}
@@ -189,7 +187,31 @@ pipeline {
                 '''
             }
         }
-
+        stage('Static Analysis Reports'){
+            
+            when { equals expected: true, actual: false}
+            steps {
+                echo '---> Parsing static analysis reports'
+                step([$class: 'ParasoftPublisher', useReportPattern: true, reportPattern: '**/target/jtest/*.xml', settings: ''])      
+            }
+            
+        
+        }
+        stage('Unit Test 10x'){
+            steps {
+                echo '---> Parsing 10.x unit test reports'
+                step([$class: 'XUnitPublisher', 
+                    tools: [
+                        [$class: 'ParasoftType', 
+                            pattern: '**/target/jtest/*.xml', 
+                            failIfNotNew: false, 
+                            skipNoTestFiles: true, 
+                            stopProcessingIfError: false
+                        ]
+                    ]
+                ])
+            }
+        }
         stage('Functional Tests 9x'){
             steps {
                 echo '---> Parsing 9.x functional test reports'
@@ -205,7 +227,6 @@ pipeline {
                 ])
             }
         }
-
     }
 
     post {
