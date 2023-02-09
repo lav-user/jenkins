@@ -60,10 +60,10 @@ pipeline {
                 jtest.license.use_network=true
                 jtest.license.network.edition=server_edition
                 license.network.use.specified.server=true
-                license.network.auth=true
+                license.network.auth.enabled=true
                 license.network.url=${ls_url}
-                license.netwoek.user=${ls_user}
-                license.netwoek.password=${ls_pass}
+                license.network.user=${ls_user}
+                license.network.password=${ls_pass}
                 dtp.url=${dtp_url}
                 dtp.user=${ls_user}
                 dtp.password=${ls_pass}" >> jenkins/jtest/jtestcli.properties
