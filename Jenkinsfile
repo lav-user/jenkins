@@ -12,7 +12,8 @@ pipeline {
         // test_repo=''
 
         parabank_port=8090
-        dtp_url="https://54.202.59.202:8443"
+        project_name=${JOB_NAME}
+        dtp_url="https://34.219.101.60:8443"
         ls_url="${PARASOFT_LS_URL}"
         ls_user="${PARASOFT_LS_USER}"
         ls_pass="${PARASOFT_LS_PASS}"
@@ -48,7 +49,7 @@ pipeline {
                 # set MONITOR_HOME="monitor"
                 # is Docker runnnig?
                 docker ps
-                # docker network create ${JOB_NAME} 
+                # docker network create ${project_name} 
                 ls -la
 
                 # Build with Jtest SA/UT/monitor
@@ -87,8 +88,8 @@ pipeline {
                 -s /home/parasoft/.m2/settings.xml \
                 -Djtest.settings='/home/parasoft/jtestcli.properties' \
                 -Djtest.config='jtest.dtp://UTSA' \
-                -Dproperty.report.coverage.images="${JOB_NAME}";"${JOB_NAME}_Unit Test" \
-                -Dproperty.dtp.project="${JOB_NAME}" \
+                -Dproperty.report.coverage.images="${project_name};${project_name}_UnitTest" \
+                -Dproperty.dtp.project="${project_name}" \
                 -Dproperty.report.dtp.publish=true; \
                 mvn \
                 -DskipTests=true \
