@@ -88,8 +88,8 @@ pipeline {
                 -Djtest.settings='/home/parasoft/jtestcli.properties' \
                 -Djtest.config='jtest.dtp://UTSA' \
                 -Dproperty.report.coverage.images="${JOB_NAME}";"${JOB_NAME}_Unit Test" \
-                -Dproperty.dtp.project=${JOB_NAME} \
-                -Dproperty.report.dtp.publish=true;
+                -Dproperty.dtp.project="${JOB_NAME}" \
+                -Dproperty.report.dtp.publish=true; \
                 mvn \
                 -DskipTests=true \
                 package jtest:monitor \
