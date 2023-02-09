@@ -86,10 +86,10 @@ pipeline {
                 test jtest:jtest \
                 -s /home/parasoft/.m2/settings.xml \
                 -Djtest.settings='/home/parasoft/jtestcli.properties' \
-                -Djtest.config='jtest.dtp://UTSA';
+                -Djtest.config='jtest.dtp://UTSA' \
                 -Dproperty.report.coverage.images="${JOB_NAME}";"${JOB_NAME}_Unit Test" \
                 -Dproperty.dtp.project=${JOB_NAME} \
-                -Dproperty.report.dtp.publish=true
+                -Dproperty.report.dtp.publish=true;
                 mvn \
                 -DskipTests=true \
                 package jtest:monitor \
@@ -177,6 +177,59 @@ pipeline {
                 soatestcli \
                 -resource /TestAssets \
                 -config 'user://Example Configuration' \
+                -settings $PWD/jenkins/soatest/soatestcli.properties \
+                -environment 127.17.0.1 \
+                -report $PWD/jenkins/soatest/report"
+                
+                '''
+
+
+            }
+        }
+        stage('Run SOAtest Tests with Cov') {
+            when { equals expected: true, actual: false}
+            steps {
+                sh '''
+                echo ${pwd}
+                
+                # Wait for Parabank start up
+                # sleep 30
+                docker ps
+                # Pulse?
+                # curl -iv --raw http://localhost:8090/parabank
+                # curl -iv --raw http://localhost:8050/status
+                
+                # License SOAtest
+                # Set Up and write .properties file
+                echo  -e "\n~~~\nSetting up and creating soatestcli.properties file.\n"
+                echo $"
+                license.network.auth.enabled=true
+                license.network.use.specified.server=true
+                license.network.url=${ls_url}
+                license.network.user=${ls_user}
+                license.network.password=${ls_pass}
+                soatest.license.network.edition=automation_edition
+                soatest.license.use_network=true" >> jenkins/soatest/soatestcli.properties
+                echo -e "\nDebug -- Verify workspace contents.\n"
+                ls -la jenkins/soatest
+                echo -e "\nDebug -- Verify soatestcli.properties file contents."
+                cat jenkins/soatest/soatestcli.properties
+                # Run SOAtest Tests
+                
+                docker run --rm -i \
+                -u 0:0 \
+                -e ACCEPT_EULA=true \
+                -v "$PWD:$PWD" \
+                parasoft/soavirt /bin/bash -c " \
+                cat $PWD/jenkins/soatest/soatestcli.properties; \
+                soatestcli \
+                -settings $PWD/jenkins/soatest/soatestcli.properties \
+                -machineId; \
+                ls -la $PWD/jenkins/soatest; \
+                cp "$PWD/jenkins/soatest"/* "/root/parasoft/soavirt_workspace/TestAssets/"; \
+                soatestcli \
+                -resource /TestAssets \
+                -config '/root/parasoft/soavirt_workspace/TestAssets/AppCoverage.properties' \
                 -settings $PWD/jenkins/soatest/soatestcli.properties \
                 -environment 127.17.0.1 \
                 -report $PWD/jenkins/soatest/report"
