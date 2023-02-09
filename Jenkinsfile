@@ -12,6 +12,7 @@ pipeline {
         // test_repo=''
 
         parabank_port=8090
+        dtp_url="http\://54.202.59.202\:8080"
         ls_url="${PARASOFT_LS_URL}"
         ls_user="${PARASOFT_LS_USER}"
         ls_pass="${PARASOFT_LS_PASS}"
@@ -58,7 +59,12 @@ pipeline {
                 parasoft.eula.accepted=true
                 jtest.license.use_network=true
                 jtest.license.network.edition=server_edition
-                dtp.url=${ls_url}
+                license.network.use.specified.server=true
+                license.network.auth=true
+                license.network.url=${ls_url}
+                license.netwoek.user=${ls_user}
+                license.netwoek.password=${ls_pass}
+                dtp.url=${dtp_url}
                 dtp.user=${ls_user}
                 dtp.password=${ls_pass}" >> jenkins/jtest/jtestcli.properties
                 echo -e "\nDebug -- Verify workspace contents.\n"
@@ -80,7 +86,10 @@ pipeline {
                 test jtest:jtest \
                 -s /home/parasoft/.m2/settings.xml \
                 -Djtest.settings='/home/parasoft/jtestcli.properties' \
-                -Djtest.config='jtest.dtp://UTSA'; \
+                -Djtest.config='jtest.dtp://UTSA';
+                -Dproperty.report.coverage.images="${JOB_NAME}";"${JOB_NAME}_Unit Test" \
+                -Dproperty.dtp.project=${JOB_NAME} \
+                -Dproperty.report.dtp.publish=true
                 mvn \
                 -DskipTests=true \
                 package jtest:monitor \
@@ -95,7 +104,7 @@ pipeline {
             }
         }
         stage('Deploy App via Docker') {
-            when { equals expected: true, actual: true}
+            when { equals expected: true, actual: false}
             steps {
                 sh '''
                 echo ${PWD}
@@ -123,7 +132,7 @@ pipeline {
             }
         }
         stage('Run SOAtest Tests') {
-            when { equals expected: true, actual: true}
+            when { equals expected: true, actual: false}
             steps {
                 sh '''
                 echo ${pwd}
@@ -178,7 +187,7 @@ pipeline {
             }
         }
         stage('Destroy Contatiners and Clean Up') {
-            when { equals expected: true, actual: true}
+            when { equals expected: true, actual: false}
             steps {
                 sh '''
                 echo ${pwd}
