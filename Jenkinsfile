@@ -12,7 +12,7 @@ pipeline {
         // test_repo=''
 
         parabank_port=8090
-        dtp_url="http\://54.202.59.202\:8080"
+        dtp_url="https://54.202.59.202:8443"
         ls_url="${PARASOFT_LS_URL}"
         ls_user="${PARASOFT_LS_USER}"
         ls_pass="${PARASOFT_LS_PASS}"
