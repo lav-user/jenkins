@@ -122,7 +122,7 @@ pipeline {
                 '''
             }
         }
-        stage('Run Functional Tests') {
+        stage('Run SOAtest Tests') {
             when { equals expected: true, actual: true}
             steps {
                 sh '''
@@ -178,6 +178,7 @@ pipeline {
             }
         }
         stage('Destroy Contatiners and Clean Up') {
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${pwd}
