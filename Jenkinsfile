@@ -107,7 +107,7 @@ pipeline {
                 '''
             }
         }
-        stage('Deploy App Docker Container with Cov Agent ') {
+        stage('Deploy App Docker Container') {
             when { equals expected: true, actual: false}
             steps {
                 sh '''
@@ -131,6 +131,31 @@ pipeline {
 
                 # Configure App
 
+                # Deploy Virt Env
+                '''
+            }
+        }
+        stage('Deploy App via Docker with Cov Agent') {
+            when { equals expected: true, actual: false}
+            steps {
+                sh '''
+                echo ${PWD}
+                docker ps
+                # Set Up Env
+                # Unpack monitor
+                # JDBCDriver.jar
+                # Deploy App
+                ## Specify Port via ${parabank_port}
+                docker run -d \
+                -p ${parabank_port}:8080 \
+                -p 8050:8050 \
+                -p 61616:61616 \
+                -p 9001:9001 \
+                --env-file "$PWD/jenkins/jtest/monitor.env" \
+                -v "$PWD/monitor:/home/docker/jtest/monitor" \
+                --name parabankv1 \
+                parasoft/parabank
+                # Configure App
                 # Deploy Virt Env
                 '''
             }
