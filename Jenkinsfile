@@ -25,7 +25,7 @@ pipeline {
     stages {
         stage('Configre Workspace') {
             steps {
-                // cleanWs()
+                cleanWs()
                 sh '''
                     echo ${ls_user}
                     ls -R    
@@ -39,7 +39,7 @@ pipeline {
             }
         }
         stage('Build/Unit Tests/Static Analysis/Coevrage Agent') {
-            when { equals expected: true, actual: false
+            when { equals expected: true, actual: true }
             steps {
                 sh '''
                 
@@ -136,7 +136,7 @@ pipeline {
             }
         }
         stage('Deploy App via Docker with Cov Agent') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${PWD}
@@ -285,9 +285,6 @@ pipeline {
                 -publish
 
                 '''
-
-                
-
             }
         }
         stage('Destroy Contatiners and Clean Up') {
