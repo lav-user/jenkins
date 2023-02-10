@@ -239,7 +239,8 @@ pipeline {
                 -config '/root/parasoft/soavirt_workspace/TestAssets/AppCoverage.properties' \
                 -settings $PWD/jenkins/soatest/soatestcli.properties \
                 -environment 127.17.0.1 \
-                -report $PWD/jenkins/soatest/report"
+                -report $PWD/jenkins/soatest/report
+                -publish"
                 
                 '''
 
