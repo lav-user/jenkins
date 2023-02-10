@@ -12,11 +12,13 @@ pipeline {
         // test_repo=''
 
         parabank_port=8090
-        project_name=${JOB_NAME}
+        project_name="Parabank"
         dtp_url="https://34.219.101.60:8443"
         ls_url="${PARASOFT_LS_URL}"
         ls_user="${PARASOFT_LS_USER}"
         ls_pass="${PARASOFT_LS_PASS}"
+        
+        covImage = "${project_name};${project_name}_UnitTest"
 
     }
     stages {
@@ -54,7 +56,6 @@ pipeline {
 
                 # Build with Jtest SA/UT/monitor
                 # Set Up and write .properties file
-
                 echo  -e "\n~~~\nSetting up and creating jtest.properties file.\n"
                 echo $"
                 parasoft.eula.accepted=true
@@ -67,7 +68,9 @@ pipeline {
                 license.network.password=${ls_pass}
                 dtp.url=${dtp_url}
                 dtp.user=${ls_user}
-                dtp.password=${ls_pass}" >> jenkins/jtest/jtestcli.properties
+                dtp.password=${ls_pass}
+                report.coverage.images="${covImage}"
+                dtp.project=${project_name}" >> jenkins/jtest/jtestcli.properties
                 echo -e "\nDebug -- Verify workspace contents.\n"
                 ls -la
                 echo -e "\nDebug -- Verify jtestcli.properties file contents."
@@ -88,8 +91,6 @@ pipeline {
                 -s /home/parasoft/.m2/settings.xml \
                 -Djtest.settings='/home/parasoft/jtestcli.properties' \
                 -Djtest.config='jtest.dtp://UTSA' \
-                -Dproperty.report.coverage.images="${project_name};${project_name}_UnitTest" \
-                -Dproperty.dtp.project="${project_name}" \
                 -Dproperty.report.dtp.publish=true; \
                 mvn \
                 -DskipTests=true \
