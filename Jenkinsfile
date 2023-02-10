@@ -17,7 +17,7 @@ pipeline {
         ls_url="${PARASOFT_LS_URL}"
         ls_user="${PARASOFT_LS_USER}"
         ls_pass="${PARASOFT_LS_PASS}"
-        build_id="parabank-main"
+        buildId="parabank-main"
         unitCovImage="${project_name};${project_name}_UnitTest"
         fucntionalCovImage="${project_name};${project_name}_FunctionalTest"
         codeCovConfig="jtest.dtp://CalculateApplicationCoverage"
@@ -67,7 +67,7 @@ pipeline {
                 license.network.url=${ls_url}
                 license.network.user=${ls_user}
                 license.network.password=${ls_pass}
-                build.id="${build_id}"
+                build.id="${buildId}"
                 dtp.url=${dtp_url}
                 dtp.user=demo
                 dtp.password=demo-user
@@ -239,7 +239,7 @@ pipeline {
                 license.network.password=${ls_pass}
                 soatest.license.network.edition=automation_edition
                 soatest.license.use_network=true
-                build.id=${build_id}
+                build.id=${buildId}
                 dtp.enabled=true
                 dtp.project=${project_name}
                 dtp.url=${dtp_url}
@@ -280,7 +280,7 @@ pipeline {
                 license.network.url=${ls_url}
                 license.network.user=${ls_user}
                 license.network.password=${ls_pass}
-                build.id="${build_id}"
+                build.id="${buildId}"
                 dtp.url=${dtp_url}
                 dtp.user=demo
                 dtp.password=demo-user
