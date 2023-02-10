@@ -18,6 +18,7 @@ pipeline {
         ls_user="${PARASOFT_LS_USER}"
         ls_pass="${PARASOFT_LS_PASS}"
         
+        build.id = "${project_name}-${BRANCH_NAME}"
         covImage = "${project_name};${project_name}_UnitTest"
 
     }
@@ -37,7 +38,7 @@ pipeline {
                    '''
             }
         }
-        stage('Build App') {
+        stage('Build/Unit Tests/Static Analysis/Coevrage Agent') {
             when { equals expected: true, actual: true}
             steps {
                 sh '''
@@ -66,6 +67,7 @@ pipeline {
                 license.network.url=${ls_url}
                 license.network.user=${ls_user}
                 license.network.password=${ls_pass}
+                build.id=${build.id}
                 dtp.url=${dtp_url}
                 dtp.user=demo
                 dtp.password=demo-user
@@ -105,7 +107,7 @@ pipeline {
                 '''
             }
         }
-        stage('Deploy App via Docker') {
+        stage('Deploy App Docker Container with Cov Agent ') {
             when { equals expected: true, actual: true}
             steps {
                 sh '''
