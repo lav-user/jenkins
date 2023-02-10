@@ -17,10 +17,10 @@ pipeline {
         ls_url="${PARASOFT_LS_URL}"
         ls_user="${PARASOFT_LS_USER}"
         ls_pass="${PARASOFT_LS_PASS}"
-        
-        build.id = "${project_name}-${BRANCH_NAME}"
-        covImage = "${project_name};${project_name}_UnitTest"
-
+        build_id = "${project_name}-${BRANCH_NAME}"
+        unitCovImage = "${project_name};${project_name}_UnitTest"
+        fucntionalCovImage = "${project_name};${project_name}_FunctionalTest"
+        codeCovConfig="jtest.dtp://CalculateApplicationCoverage"
     }
     stages {
         stage('Configre Workspace') {
@@ -67,11 +67,11 @@ pipeline {
                 license.network.url=${ls_url}
                 license.network.user=${ls_user}
                 license.network.password=${ls_pass}
-                build.id=${build.id}
+                build.id="${build_id}"
                 dtp.url=${dtp_url}
                 dtp.user=demo
                 dtp.password=demo-user
-                report.coverage.images="${covImage}"
+                report.coverage.images="${unitCovImage}"
                 dtp.project=${project_name}" >> jenkins/jtest/jtestcli.properties
                 echo -e "\nDebug -- Verify workspace contents.\n"
                 ls -la
@@ -244,8 +244,24 @@ pipeline {
                 -report $PWD/jenkins/soatest/report \
                 -publish"
                 
+                # Publush Coverage
+                docker run --rm -i \
+                -u 0:0 \
+                -v "$PWD:$PWD" \
+                -w "$PWD" \
+                $(docker build -q ./jenkins/jtest) /bin/bash -c " \
+                jtestcli \
+                -settings /home/parasoft/jtestcli.properties \
+                -staticcoverage "monitor/static_coverage.xml" \
+                -runtimecoverage "parabank/target/jtest/runtime_coverage" \
+                -config "${codeCovConfig}" \
+                -property report.coverage.images="${fucntionalCovImage}" \
+                -property session.tag=FunctionalTest" \
+                -publish \
+
                 '''
 
+                
 
             }
         }
@@ -305,7 +321,7 @@ pipeline {
     post {
         always {
             
-            archiveArtifacts artifacts: '**/target/jtest/**, **/soatest/report/**',
+            archiveArtifacts artifacts: '**/target/**/target/jtest/**, **/soatest/report/**',
                 fingerprint: true, 
                 onlyIfSuccessful: true
         }
