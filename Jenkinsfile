@@ -249,7 +249,7 @@ pipeline {
                 -u 0:0 \
                 -v "$PWD:$PWD" \
                 -w "$PWD" \
-                $(docker build -q ./jenkins/jtest) /bin/bash -c " \
+                $(docker build -q ./jenkins/jtest) \
                 jtestcli \
                 -settings /home/parasoft/jtestcli.properties \
                 -staticcoverage "monitor/static_coverage.xml" \
@@ -257,7 +257,7 @@ pipeline {
                 -config "${codeCovConfig}" \
                 -property report.coverage.images="${fucntionalCovImage}" \
                 -property session.tag=FunctionalTest" \
-                -publish \
+                -publish
 
                 '''
 
