@@ -359,7 +359,7 @@ pipeline {
     post {
         always {
             
-            archiveArtifacts artifacts: '**/target/**/target/jtest/**, **/soatest/report/**',
+            archiveArtifacts artifacts: '**/target/*.war, **/target/jtest/**, **/soatest/report/**',
                 fingerprint: true, 
                 onlyIfSuccessful: true
         }
