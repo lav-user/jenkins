@@ -106,7 +106,7 @@ pipeline {
             }
         }
         stage('Deploy App via Docker') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${PWD}
@@ -189,7 +189,7 @@ pipeline {
             }
         }
         stage('Run SOAtest Tests with Cov') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${pwd}
@@ -211,7 +211,12 @@ pipeline {
                 license.network.user=${ls_user}
                 license.network.password=${ls_pass}
                 soatest.license.network.edition=automation_edition
-                soatest.license.use_network=true" >> jenkins/soatest/soatestcli.properties
+                soatest.license.use_network=true
+                dtp.enabled=true
+                dtp.project=${project_name}
+                dtp.url=${dtp_url}
+                dtp.user=demo
+                dtp.password=demo-user" >> jenkins/soatest/soatestcli.properties
                 echo -e "\nDebug -- Verify workspace contents.\n"
                 ls -la jenkins/soatest
                 echo -e "\nDebug -- Verify soatestcli.properties file contents."
@@ -242,7 +247,7 @@ pipeline {
             }
         }
         stage('Destroy Contatiners and Clean Up') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: true}
             steps {
                 sh '''
                 echo ${pwd}
