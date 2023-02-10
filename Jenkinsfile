@@ -17,9 +17,9 @@ pipeline {
         ls_url="${PARASOFT_LS_URL}"
         ls_user="${PARASOFT_LS_USER}"
         ls_pass="${PARASOFT_LS_PASS}"
-        build_id = "${project_name}-${BRANCH_NAME}"
-        unitCovImage = "${project_name};${project_name}_UnitTest"
-        fucntionalCovImage = "${project_name};${project_name}_FunctionalTest"
+        build_id="parabank-main"
+        unitCovImage="${project_name};${project_name}_UnitTest"
+        fucntionalCovImage="${project_name};${project_name}_FunctionalTest"
         codeCovConfig="jtest.dtp://CalculateApplicationCoverage"
     }
     stages {
@@ -108,7 +108,7 @@ pipeline {
             }
         }
         stage('Deploy App Docker Container') {
-            when { equals expected: true, actual: false}
+            when { equals expected: true, actual: false }
             steps {
                 sh '''
                 echo ${PWD}
@@ -136,7 +136,7 @@ pipeline {
             }
         }
         stage('Deploy App via Docker with Cov Agent') {
-            when { equals expected: true, actual: true}
+            when { equals expected: true, actual: true }
             steps {
                 sh '''
                 echo ${PWD}
@@ -222,7 +222,7 @@ pipeline {
                 echo ${pwd}
                 
                 # Wait for Parabank start up
-                # sleep 30
+                sleep 15
                 docker ps
                 # Pulse?
                 curl -iv --raw http://localhost:8090/parabank
@@ -239,6 +239,7 @@ pipeline {
                 license.network.password=${ls_pass}
                 soatest.license.network.edition=automation_edition
                 soatest.license.use_network=true
+                build.id=${build_id}
                 dtp.enabled=true
                 dtp.project=${project_name}
                 dtp.url=${dtp_url}
@@ -269,7 +270,22 @@ pipeline {
                 -report $PWD/jenkins/soatest/report \
                 -publish"
                 
-                # Publush Coverage
+                # Publish Coverage
+                echo $"
+                parasoft.eula.accepted=true
+                jtest.license.use_network=true
+                jtest.license.network.edition=server_edition
+                license.network.use.specified.server=true
+                license.network.auth.enabled=true
+                license.network.url=${ls_url}
+                license.network.user=${ls_user}
+                license.network.password=${ls_pass}
+                build.id="${build_id}"
+                dtp.url=${dtp_url}
+                dtp.user=demo
+                dtp.password=demo-user
+                dtp.project=${project_name}" >> jenkins/jtest/jtestcli.properties
+
                 docker run --rm -i \
                 -u 0:0 \
                 -v "$PWD:$PWD" \
@@ -281,7 +297,7 @@ pipeline {
                 -runtimecoverage "parabank/target/jtest/runtime_coverage" \
                 -config "${codeCovConfig}" \
                 -property report.coverage.images="${fucntionalCovImage}" \
-                -property session.tag=FunctionalTest" \
+                -property session.tag="FunctionalTest" \
                 -publish
 
                 '''
