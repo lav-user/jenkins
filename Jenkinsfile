@@ -5,23 +5,29 @@ pipeline {
         skipDefaultCheckout(true)
     }
     environment {
-        // app_git_url='https://github.com/parasoft/parabank.git'
-        // app_branch='master'
-        // app_repo=''
-        // build_repo=''
-        // test_repo=''
-
+        // App Settings
         parabank_port=8090
         project_name="Parabank"
-        dtp_url="https://34.219.101.60:8443"
+        buildId="${project_name}-main"
+
+        
+        // Parasoft Licenses
         ls_url="${PARASOFT_LS_URL}"
         ls_user="${PARASOFT_LS_USER}"
         ls_pass="${PARASOFT_LS_PASS}"
-        buildId="parabank-main"
+        
+        // Parasoft Jtest Settings
+        codeCovConfig="jtest.dtp://CalculateApplicationCoverage"    
         unitCovImage="${project_name};${project_name}_UnitTest"
+
+        // Parasoft SOAtest Settings
         fucntionalCovImage="${project_name};${project_name}_FunctionalTest"
-        codeCovConfig="jtest.dtp://CalculateApplicationCoverage"
-    }
+        
+        // Parasoft DTP Settings
+        dtp_url="https://34.219.101.60:8443"
+        dtp_publish=false
+
+        }
     stages {
         stage('Configre Workspace') {
             steps {
@@ -38,26 +44,17 @@ pipeline {
                    '''
             }
         }
-        stage('Build/Unit Tests/Static Analysis/Coevrage Agent') {
+        stage('Build') {
             when { equals expected: true, actual: true }
             steps {
                 sh '''
                 
-                echo "Starting Pipeline Execution."
-                echo ${PWD}
-
-                # Check Vars
-                echo $PWD
-                mkdir monitor
-                # set MONITOR_HOME="monitor"
-                # is Docker runnnig?
-                docker ps
-                # docker network create ${project_name} 
-                ls -la
-
                 # Build with Jtest SA/UT/monitor
+
+                # Create Folder for monitor
+                mkdir monitor
+                
                 # Set Up and write .properties file
-                echo  -e "\n~~~\nSetting up and creating jtest.properties file.\n"
                 echo $"
                 parasoft.eula.accepted=true
                 jtest.license.use_network=true
@@ -73,13 +70,11 @@ pipeline {
                 dtp.password=demo-user
                 report.coverage.images="${unitCovImage}"
                 dtp.project=${project_name}" >> jenkins/jtest/jtestcli.properties
-                echo -e "\nDebug -- Verify workspace contents.\n"
-                ls -la
-                echo -e "\nDebug -- Verify jtestcli.properties file contents."
+                
+                # Debug: Print jtestcli.properties file
                 cat jenkins/jtest/jtestcli.properties
 
-                # need to point to ${user.home}
-                
+                # Run Maven build with Jtest tasks via Docker
                 docker run --rm -i \
                 -u 0:0 \
                 -v "$PWD:$PWD" \
@@ -139,13 +134,10 @@ pipeline {
             when { equals expected: true, actual: true }
             steps {
                 sh '''
-                echo ${PWD}
-                docker ps
-                # Set Up Env
-                # Unpack monitor
-                # JDBCDriver.jar
-                # Deploy App
-                ## Specify Port via ${parabank_port}
+                
+                # Deploy App with Coverage Agent
+                
+                # Start Docker Container
                 docker run -d \
                 -p ${parabank_port}:8080 \
                 -p 8050:8050 \
@@ -155,8 +147,12 @@ pipeline {
                 -v "$PWD/monitor:/home/docker/jtest/monitor" \
                 --name parabankv1 \
                 parasoft/parabank
-                # Configure App
-                # Deploy Virt Env
+
+                # Health Check
+                sleep 15
+                curl -iv --raw http://localhost:8090/parabank
+                curl -iv --raw http://localhost:8050/status
+
                 '''
             }
         }
@@ -215,22 +211,13 @@ pipeline {
 
             }
         }
-        stage('Run SOAtest Tests with Cov') {
+        stage('Test') {
             when { equals expected: true, actual: true}
             steps {
                 sh '''
-                echo ${pwd}
-                
-                # Wait for Parabank start up
-                sleep 15
-                docker ps
-                # Pulse?
-                curl -iv --raw http://localhost:8090/parabank
-                curl -iv --raw http://localhost:8050/status
-                
-                # License SOAtest
+                # Run SOAtest Tests with Cov
+              
                 # Set Up and write .properties file
-                echo  -e "\n~~~\nSetting up and creating soatestcli.properties file.\n"
                 echo $"
                 license.network.auth.enabled=true
                 license.network.use.specified.server=true
@@ -245,12 +232,11 @@ pipeline {
                 dtp.url=${dtp_url}
                 dtp.user=demo
                 dtp.password=demo-user" >> jenkins/soatest/soatestcli.properties
-                echo -e "\nDebug -- Verify workspace contents.\n"
-                ls -la jenkins/soatest
-                echo -e "\nDebug -- Verify soatestcli.properties file contents."
-                cat jenkins/soatest/soatestcli.properties
-                # Run SOAtest Tests
                 
+                # Debug: Print soatestcli.properties file
+                cat jenkins/soatest/soatestcli.properties
+                
+                # Run SOAtest Tests
                 docker run --rm -i \
                 -u 0:0 \
                 -e ACCEPT_EULA=true \
@@ -271,6 +257,8 @@ pipeline {
                 -publish"
                 
                 # Publish Coverage
+
+                # Set up .properties (why am i doing this twice?)
                 echo $"
                 parasoft.eula.accepted=true
                 jtest.license.use_network=true
@@ -286,6 +274,7 @@ pipeline {
                 dtp.password=demo-user
                 dtp.project=${project_name}" >> jenkins/jtest/jtestcli.properties
 
+                # Run Jtest command to publish test results
                 docker run --rm -i \
                 -u 0:0 \
                 -v "$PWD:$PWD" \
@@ -307,8 +296,6 @@ pipeline {
             when { equals expected: true, actual: true}
             steps {
                 sh '''
-                echo ${pwd}
-                docker ps
                 docker stop parabankv1
                 docker rm parabankv1
                 '''
