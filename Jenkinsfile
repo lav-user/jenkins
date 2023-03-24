@@ -24,7 +24,7 @@ pipeline {
         fucntionalCovImage="${project_name};${project_name}_FunctionalTest"
         
         // Parasoft DTP Settings
-        dtp_url="https://34.219.101.60:8443"
+        dtp_url="http://34.209.64.10:8443"
         dtp_publish=false
 
         }
