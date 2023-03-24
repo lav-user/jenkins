@@ -7,7 +7,7 @@ pipeline {
     environment {
         // App Settings
         parabank_port=8090
-        project_name="Parabank"
+        project_name="Parabank_Master"
         buildId="${project_name}-main"
 
         
@@ -24,7 +24,7 @@ pipeline {
         fucntionalCovImage="${project_name};${project_name}_FunctionalTest"
         
         // Parasoft DTP Settings
-        dtp_url="http://34.209.64.10:8443"
+        dtp_url="https://34.209.64.10:8443"
         dtp_publish=false
 
         }
@@ -33,13 +33,11 @@ pipeline {
             steps {
                 cleanWs()
                 sh '''
-                    echo ${ls_user}
-                    ls -R    
-                    
+                    # Checkout pipeline sources
                     git clone 'https://github.com/gtrofimov/jenkins.git' 
-                
+
+                    # Checkout app source
                     git clone 'https://github.com/parasoft/parabank.git'
-                    ls -la
                 
                    '''
             }

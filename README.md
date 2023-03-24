@@ -16,8 +16,8 @@ jenkins
 ```
 ## To Run
 
-1. Install Jenkins
-2. Install Docker
+1. Install Jenkins on a Linux VM (https://www.jenkins.io/doc/tutorials/tutorial-for-installing-jenkins-on-AWS/#downloading-and-installing-jenkins)
+2. Install Docker (link to Docker install on Linux)
 3. Create Jenkins Pipeline
    1. Build
    2. Deploy
