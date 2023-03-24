@@ -24,7 +24,7 @@ pipeline {
         fucntionalCovImage="${project_name};${project_name}_FunctionalTest"
         
         // Parasoft DTP Settings
-        dtp_url="https://34.209.64.10:8443"
+        dtp_url="https://35.163.146.251:8443"
         dtp_publish=false
 
         }
@@ -34,10 +34,10 @@ pipeline {
                 cleanWs()
                 sh '''
                     # Checkout pipeline sources
-                    git clone 'https://github.com/gtrofimov/jenkins.git' 
+                    git clone 'https://github.com/lav-user/jenkins.git' 
 
                     # Checkout app source
-                    git clone 'https://github.com/parasoft/parabank.git'
+                    git clone 'https://github.com/lav-user/parabank.git'
                 
                    '''
             }
