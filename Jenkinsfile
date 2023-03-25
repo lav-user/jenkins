@@ -143,7 +143,7 @@ pipeline {
                 -p 9001:9001 \
                 --env-file "$PWD/jenkins/jtest/monitor.env" \
                 -v "$PWD/monitor:/home/docker/jtest/monitor" \
-                --name parabankv1 \
+                --name parabankv2 \
                 parasoft/parabank
 
                 # Health Check
